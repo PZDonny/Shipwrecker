@@ -1,8 +1,8 @@
 package net.donnypz.shipwrecker.cosmetics.killeffects;
 
 import net.donnypz.mccore.cosmetics.CosmeticRegistry;
-import net.donnypz.mccore.cosmetics.KillEffect;
-import net.donnypz.mccore.utils.inventory.cosmetic.FieldMinimumCondition;
+import net.donnypz.mccore.cosmetics.conditions.FieldMinimumCondition;
+import net.donnypz.mccore.cosmetics.preset.basic.KillEffect;
 import net.donnypz.shipwrecker.Shipwrecker;
 import org.bukkit.*;
 import org.bukkit.entity.LivingEntity;
@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Random;
+import java.util.Set;
 
 public class ColorBomb extends KillEffect {
     Material[] blockdatas = new Material[]{Material.LIME_CONCRETE,
@@ -19,10 +20,11 @@ public class ColorBomb extends KillEffect {
             Material.ORANGE_CONCRETE,
             Material.MAGENTA_CONCRETE,
             Material.YELLOW_CONCRETE};
+
     private static final Random random = new Random();
     public ColorBomb(CosmeticRegistry registry) {
         super("color_bomb", registry);
-        this.addFieldMinimumCondition(new FieldMinimumCondition("kills_melee", "melee kill(s)"), 5);
+        this.addCondition(new FieldMinimumCondition(Set.of("kills_melee", "kills_projectile"), "kills", 3));
         this.setCosmeticDisplayName("Color Bomb");
         this.setDisplayMaterial(Material.WHITE_DYE);
     }

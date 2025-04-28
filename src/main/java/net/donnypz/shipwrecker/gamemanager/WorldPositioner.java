@@ -3,19 +3,20 @@ package net.donnypz.shipwrecker.gamemanager;
 import net.donnypz.displayentityutils.utils.Direction;
 import net.donnypz.displayentityutils.utils.DisplayUtils;
 import net.donnypz.shipwrecker.Shipwrecker;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import net.donnypz.shipwrecker.gamemanager.crates.Crate;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.bukkit.*;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.ItemDisplay;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Transformation;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-import java.util.HashSet;
 import java.util.Random;
 
 public class WorldPositioner {
@@ -32,11 +33,14 @@ public class WorldPositioner {
     ItemStack floorItem = new ItemStack(Material.SAND);
     ItemStack wallItem = new ItemStack(Material.DARK_PRISMARINE);
 
-    static final float pickupOffset = 15;
+    public static final Direction displayTranslation = Direction.WEST;
+
+    static final int pickupOffset = 11;
     static final int sections = 5;
     static final float translationDistance = 180;
+    public static final float translationDistanceSquared = translationDistance*translationDistance;
     static final long timeBetweenWalls = 60;
-    static final long translationTime = timeBetweenWalls*sections;
+    public static final long translationTime = timeBetweenWalls*sections;
 
 
     static final float height = 60;
@@ -66,8 +70,6 @@ public class WorldPositioner {
     static final ItemStack[] fish = new ItemStack[]{new ItemStack(Material.COD), new ItemStack(Material.SALMON), new ItemStack(Material.TROPICAL_FISH), new ItemStack(Material.PUFFERFISH)};
 
     static final Random random = new Random();
-
-    final HashSet<Display> activeDisplays = new HashSet<>();
 
     WorldPositioner(SWArena swArena){
         this.swArena = swArena;
@@ -112,14 +114,14 @@ public class WorldPositioner {
                     return;
                 }
 
-                spawnWall(leftWallStart);
-                spawnWall(rightWallStart);
+                spawnWall(leftWallStart, true);
+                spawnWall(rightWallStart, false);
                 spawnCovers();
             }
         }.runTaskTimer(Shipwrecker.getInstance(), 0, 60/swArena.shipSpeed);
     }
 
-    void decorateExtra(){
+    void decorateFish(){
         if (swArena.getArena().isEndingOrNotUsable()){
             return;
         }
@@ -146,20 +148,57 @@ public class WorldPositioner {
 
             applyData(display, true, true);
         }
-        new BukkitRunnable(){
-            public void run(){
-                decorateExtra();
-            }
-        }.runTaskLater(Shipwrecker.getInstance(), (long) random.nextInt(2, 5)*20);
+        Bukkit.getScheduler().runTaskLater(Shipwrecker.getInstance(), () -> {
+            decorateFish();
+        }, (long) random.nextInt(2, 5)*20);
     }
 
-    void spawnPickups(){
+    void spawnCrate(boolean scheduleNext){
+        if (swArena.getArena().isEndingOrNotUsable()){
+            return;
+        }
+
+        Component message;
+        if (random.nextInt(5) == 0){ //20% chance for Special Crate
+            Crate.spawnSpecial(swArena);
+            message = MiniMessage.miniMessage().deserialize("\n<red><bold>❗</bold> <light_purple>SPECIAL <gold>SEA CRATE INCOMING\n");
+        }
+        else{
+            Crate.spawnNormal(swArena);
+            message = MiniMessage.miniMessage().deserialize("\n<red><bold>❗</bold> <gold>SEA CRATE INCOMING\n");
+        }
+
+        for (Player p : swArena.getArena().getArenaPlayers()){
+            p.sendMessage(message);
+            p.playSound(environmentOrigin, Sound.ENTITY_AXOLOTL_SPLASH, 100, 1.25f);
+        }
+        if (scheduleNext){
+            Bukkit.getScheduler().runTaskLater(Shipwrecker.getInstance(), () -> {
+                spawnCrate(true);
+            }, (long) random.nextInt(15, 45)*20);
+        }
 
     }
 
-    void spawnWall(Location loc){
+    public Location getEnvironmentOrigin(){
+        return environmentOrigin;
+    }
+
+    public Location getRandomPickupLocation(){
+        Location l = environmentOrigin.clone();
+        int yOffset = random.nextInt(-5, 5);
+        int zOffset = random.nextBoolean() ? -(pickupOffset+1) : pickupOffset;
+
+        l.setY(l.y()+yOffset);
+        l.setZ(l.z()+zOffset);
+        return l;
+    }
+
+
+
+    void spawnWall(Location loc, boolean isLeft){
         ItemDisplay wall = loc.getWorld().spawn(loc, ItemDisplay.class, d -> {
-            d.setTransformation(wallTransformation);
+            d.setTransformation(getWallTransformation(isLeft));
             d.setItemStack(wallItem);
         });
 
@@ -169,12 +208,12 @@ public class WorldPositioner {
     void spawnCovers(){
         World w = floorStart.getWorld();
         ItemDisplay ceiling = w.spawn(ceilingStart, ItemDisplay.class, d -> {
-            d.setTransformation(coverTransformation);
+            d.setTransformation(getCoverTransformation(false));
             d.setItemStack(ceilingItem);
         });
 
         ItemDisplay floor = w.spawn(floorStart, ItemDisplay.class, d -> {
-            d.setTransformation(coverTransformation);
+            d.setTransformation(getCoverTransformation(true));
             d.setItemStack(floorItem);
             d.setBrightness(new Display.Brightness(7, 7));
         });
@@ -183,34 +222,63 @@ public class WorldPositioner {
         applyData(floor, true, false);
     }
 
+    private Transformation getWallTransformation(boolean isLeft){
+        int shipSpeed = swArena.shipSpeed;
+        Vector3f v = new Vector3f(wallTransformation.getTranslation());
+        if (isLeft){
+            v.z += ((shipSpeed-1)*0.05f);
+        }
+        else{
+            v.z -= ((shipSpeed-1)*0.05f);
+        }
+
+        return new Transformation(v, wallTransformation.getLeftRotation(), wallTransformation.getScale(), wallTransformation.getRightRotation());
+    }
+
+    private Transformation getCoverTransformation(boolean isFloor){
+        int shipSpeed = swArena.shipSpeed;
+        Vector3f v = new Vector3f(coverTransformation.getTranslation());
+        if (isFloor){
+            v.y += ((shipSpeed-1)*0.05f);
+        }
+        else{
+            v.y -= ((shipSpeed-1)*0.05f);
+        }
+        return new Transformation(v, coverTransformation.getLeftRotation(), coverTransformation.getScale(), coverTransformation.getRightRotation());
+    }
+
+
+
     private void applyData(Display display, boolean despawnDelayed, boolean setBrightness){
         display.setViewRange(2);
-        Bukkit.getScheduler().runTaskLater(Shipwrecker.getInstance(), () ->{
-            DisplayUtils.translate(display, Direction.WEST, translationDistance, (int) translationTime/swArena.shipSpeed, 0);
-        }, 2);
-        activeDisplays.add(display);
+        translateDisplay(display);
+
         if (despawnDelayed){
-            Bukkit.getScheduler().runTaskLater(Shipwrecker.getInstance(), () -> {
-                display.remove();
-                activeDisplays.remove(display);
-            }, WorldPositioner.translationTime/swArena.shipSpeed);
+            Bukkit.getScheduler().runTaskLater(Shipwrecker.getInstance(), display::remove, WorldPositioner.translationTime/swArena.shipSpeed);
         }
         if (setBrightness){
             display.setBrightness(new Display.Brightness(15, 15));
         }
     }
 
-    void updateActiveDisplaySpeed(int speed){
-        for (Display display : activeDisplays){
-            Transformation t = display.getTransformation();
-            display.setInterpolationDuration((int) (translationTime/speed));
-            display.setTransformation(t);
-        }
+    public void translateDisplay(Display display){
+        Bukkit.getScheduler().runTaskLater(Shipwrecker.getInstance(), () ->{
+            DisplayUtils.translate(display, displayTranslation, translationDistance, (int) translationTime/swArena.shipSpeed, 0);
+        }, 2);
     }
 
-    public void endGameCoverItems(){
-        ceilingItem = new ItemStack(Material.QUARTZ_BRICKS);
-        wallItem = new ItemStack(Material.QUARTZ_PILLAR);
-        floorItem = ceilingItem;
+
+    public void useEndgameMaterials(){
+        if (swArena.isVictory){
+            ceilingItem = new ItemStack(Material.QUARTZ_BRICKS);
+            wallItem = new ItemStack(Material.QUARTZ_PILLAR);
+            floorItem = ceilingItem;
+        }
+        else{
+            ceilingItem = new ItemStack(Material.SMOOTH_BASALT);
+            wallItem = new ItemStack(Material.BLACKSTONE);
+            floorItem = new ItemStack(Material.MAGMA_BLOCK);
+        }
+
     }
 }

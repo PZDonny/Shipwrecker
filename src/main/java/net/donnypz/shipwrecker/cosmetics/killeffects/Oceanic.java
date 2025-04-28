@@ -1,8 +1,8 @@
 package net.donnypz.shipwrecker.cosmetics.killeffects;
 
 import net.donnypz.mccore.cosmetics.CosmeticRegistry;
-import net.donnypz.mccore.cosmetics.KillEffect;
-import net.donnypz.mccore.utils.inventory.cosmetic.DocumentCountCondition;
+import net.donnypz.mccore.cosmetics.conditions.CosmeticCountCondition;
+import net.donnypz.mccore.cosmetics.preset.basic.KillEffect;
 import net.donnypz.shipwrecker.Shipwrecker;
 import org.bukkit.*;
 import org.bukkit.entity.LivingEntity;
@@ -11,11 +11,7 @@ import org.bukkit.entity.Player;
 public class Oceanic extends KillEffect {
     public Oceanic(CosmeticRegistry registry) {
         super("oceanic", registry);
-        this.addDocumentCountCondition(new DocumentCountCondition(Shipwrecker.getInstance().getKillEffectCollection()
-                ,2,
-                "player_uuid",
-                DocumentCountCondition.CountType.AT_LEAST,
-                "unlocked kill effects"));
+        this.addCondition(new CosmeticCountCondition(registry, 2, "unlocked kill effects"));
         this.setCosmeticDisplayName("Oceanic");
         this.setDisplayMaterial(Material.KELP);
     }

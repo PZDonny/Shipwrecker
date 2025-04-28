@@ -1,4 +1,4 @@
-package net.donnypz.shipwrecker.ui.menu.shop;
+package net.donnypz.shipwrecker.ui.shop;
 
 import com.mongodb.client.MongoCollection;
 import net.donnypz.mccore.cosmetics.Cosmetic;
@@ -9,21 +9,22 @@ import net.donnypz.shipwrecker.Shipwrecker;
 import net.kyori.adventure.text.Component;
 import org.bson.Document;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
-public class KillEffectShop {
+class ProjectileTrailShop {
 
     static void open(Player player, Document playerDocument){
         MongoCollection<Document> playerCollection = Shipwrecker.getInstance().getPlayersCollection();
-        MongoCollection<Document> unlockCollection = Shipwrecker.getInstance().getKillEffectCollection();
+        MongoCollection<Document> unlockCollection = Shipwrecker.getInstance().getProjectileTrailCollection();
 
         CosmeticGUI gui = new CosmeticGUI(5,
-                Component.text("Cosmetic Shop"),
+                Component.text("Projectile Trails"),
                 player,
                 playerCollection,
                 unlockCollection,
-                Shipwrecker.EQUIPPED_COSMETICS+".kill_effect",
-                "kill effect");
+                Shipwrecker.EQUIPPED_COSMETICS+".projectile_trail",
+                "projectile trail");
         InventoryUtils.setInventoryOutline(gui, Material.LIGHT_BLUE_STAINED_GLASS_PANE, InventoryUtils.OutlineType.TOPROW);
 
         InventoryUtils.setExitItemSlot(gui, 40);
@@ -32,14 +33,15 @@ public class KillEffectShop {
         });
 
         int slot = 9;
-        for (Cosmetic cosmetic : Shipwrecker.getInstance().getKillEffectRegistry().getCosmetics()){
+        for (Cosmetic cosmetic : Shipwrecker.getInstance().getProjectileTrailRegistry().getCosmetics()){
             new CosmeticGUIItem(gui, slot, cosmetic.getDisplayMaterial(), cosmetic);
             slot++;
         }
 
-        InventoryUtils.setSlotCurrency(gui, ShopUtils.matchesPlayedItem, 42, playerDocument, "matches_played", "matches played");
-        InventoryUtils.setSlotCurrency(gui, ShopUtils.meleeKillsItem, 43, playerDocument, "kills_melee", "melee kill(s)");
-        InventoryUtils.setSlotCurrency(gui, ShopUtils.currencyItem, 44, playerDocument, Shipwrecker.COINS, "coin(s)");
+        InventoryUtils.setSlotFromField(gui, ShopUtils.matchesWonItem, 42, playerDocument, "matches_won", "matches won");
+        InventoryUtils.setSlotFromField(gui, ShopUtils.projectileKillsItem, 43, playerDocument, "kills_projectile", "projectile kill(s)");
+        InventoryUtils.setSlotFromField(gui, ShopUtils.currencyItem, 44, playerDocument, Shipwrecker.COINS, "coin(s)");
+        player.playSound(player, Sound.BLOCK_NOTE_BLOCK_BIT, 1,1);
         gui.openToPlayer(player);
     }
 }

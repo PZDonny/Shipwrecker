@@ -1,20 +1,26 @@
 package net.donnypz.shipwrecker;
 
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
-import net.donnypz.playerdbutils.database.MongoUtils;
+import com.xxmicloxx.NoteBlockAPI.model.Playlist;
+import com.xxmicloxx.NoteBlockAPI.model.Song;
+import net.donnypz.mccore.utils.misc.NoteBlockUtils;
 import net.donnypz.shipwrecker.commands.*;
 import net.donnypz.shipwrecker.cosmetics.killeffects._KillEffectRegistry;
 import net.donnypz.shipwrecker.cosmetics.projectiletrails._ProjectileTrailRegistry;
-import net.donnypz.shipwrecker.listeners.ArenaListeners;
-import net.donnypz.shipwrecker.listeners.Death;
-import net.donnypz.shipwrecker.listeners.PlayerConnectionListener;
+import net.donnypz.shipwrecker.leaderboard.LeaderboardUpdater;
+import net.donnypz.shipwrecker.listeners.*;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bson.Document;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.ServerLoadEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.Arrays;
+import java.util.Random;
 
 public final class Shipwrecker extends JavaPlugin implements Listener {
 
@@ -23,9 +29,16 @@ public final class Shipwrecker extends JavaPlugin implements Listener {
     MongoCollection<Document> killEffectCollection;
     MongoCollection<Document> projectileTrailCollection;
     private static Shipwrecker instance;
-    public static final String COINS = "coins";
-    public static final String EQUIPPED_COSMETICS = "equipped_cosmetics";
 
+    public static final String COINS = "coins"; //Currency Field
+    public static final String EQUIPPED_COSMETICS = "equipped_cosmetics"; //Nested Document Key
+    private static Song[] songs;
+
+    public static final TextComponent prefixLong = Component.text("------------=", NamedTextColor.GRAY, TextDecoration.BOLD)
+            .append(Component.text("sʜɪᴘᴡʀᴇᴄᴋᴇʀ", NamedTextColor.AQUA))
+            .append(Component.text("=------------", NamedTextColor.GRAY, TextDecoration.BOLD));
+
+    //Cosmetic (Unlockable) Registries
     _KillEffectRegistry killEffectRegistry = new _KillEffectRegistry();
     _ProjectileTrailRegistry projectileTrailRegistry = new _ProjectileTrailRegistry();
 
@@ -35,56 +48,88 @@ public final class Shipwrecker extends JavaPlugin implements Listener {
     public void onEnable() {
         instance = this;
 
-        //Commands
-        getCommand("startgame").setExecutor(new StartGame());
-        getCommand("addmarker").setExecutor(new AddMarker());
+        //Register Commands
+        getCommand("startmatch").setExecutor(new StartMatch());
+        getCommand("endmatch").setExecutor(new EndMatch());
         getCommand("addgold").setExecutor(new AddGold());
         getCommand("addcoins").setExecutor(new AddCoins());
         getCommand("addfakematch").setExecutor(new AddFakeMatch());
+        getCommand("addfakeplayers").setExecutor(new AddFakePlayers());
         getCommand("shop").setExecutor(new ShopCommand());
         getCommand("shipspeed").setExecutor(new ShipSpeed());
+        getCommand("updatelb").setExecutor(new UpdateLeaderboards());
 
-        //Listeners
+        //Register Event Listeners
         getServer().getPluginManager().registerEvents(new ArenaListeners(), this);
-        getServer().getPluginManager().registerEvents(new Death(), this);
+        getServer().getPluginManager().registerEvents(new DamageListener(), this);
+        getServer().getPluginManager().registerEvents(new DeathListener(), this);
+        getServer().getPluginManager().registerEvents(new EntityTargetListener(), this);
+        getServer().getPluginManager().registerEvents(new InteractionListener(), this);
+        getServer().getPluginManager().registerEvents(new MongoConnectedListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerConnectionListener(), this);
+        getServer().getPluginManager().registerEvents(new ProjectileListener(), this);
         getServer().getPluginManager().registerEvents(this, this);
 
-
+        setSongs();
     }
 
-    @EventHandler(priority = EventPriority.HIGH)
-    public void onServerStart(ServerLoadEvent e){
-        MongoDatabase db = MongoUtils.registerDatabase("shipwrecker");
-        playersCollection = MongoUtils.getCollection("players", db);
-        matchesCollection = MongoUtils.getCollection("matches", db);
-        killEffectCollection = MongoUtils.getCollection("cosmetics_kill_effects", db);
-        projectileTrailCollection = MongoUtils.getCollection("cosmetics_projectile_trails", db);
-        /*new BukkitRunnable(){
-            int attempts = 0;
-            @Override
-            public void run() {
-                if (attempts == 100){
-                    Bukkit.broadcast(Component.text("Failed to get MongoDB collections after 100 attempts!"));
-                    cancel();
-                    return;
-                }
-
-                if (MongoUtils.isConnected()){
-
-                    cancel();
-                    return;
-                }
-                attempts++;
-
-            }
-        }.runTaskTimer(Shipwrecker.getInstance(), 0, 5);*/
+    @EventHandler
+    public void onServerLoad(ServerLoadEvent e){
+        if (e.getType() == ServerLoadEvent.LoadType.RELOAD){
+            return;
+        }
+        LeaderboardUpdater.start();
     }
 
-    @Override
-    public void onDisable() {
-        // Plugin shutdown logic
+    public Shipwrecker setPlayersCollection(MongoCollection<Document> collection){
+        this.playersCollection = collection;
+        return this;
     }
+
+    public Shipwrecker setMatchesCollection(MongoCollection<Document> collection){
+        this.matchesCollection = collection;
+        return this;
+    }
+
+    public Shipwrecker setKillEffectCollection(MongoCollection<Document> collection){
+        this.killEffectCollection = collection;
+        this.killEffectRegistry.setUnlockCollection(collection);
+        return this;
+    }
+
+    public Shipwrecker setProjectileTrailCollection(MongoCollection<Document> collection){
+        this.projectileTrailCollection = collection;
+        this.projectileTrailRegistry.setUnlockCollection(collection);
+        return this;
+    }
+
+    private void setSongs(){
+        songs = new Song[]{
+                getSong("Castle Crashers - The Necromancer"),
+                getSong("MAGO - GFRIEND - FIX"),
+                getSong("Paramore - Ain't It Fun 7TPS"),
+
+        };
+    }
+
+    private Song getSong(String songName){
+        String path = "songs/";
+        return NoteBlockUtils.getSongFromPlugin(this, path+songName);
+    }
+
+
+    public static Playlist buildPlaylist(){
+        Random random = new Random();
+        Song[] shuffle = Arrays.copyOf(songs, songs.length);
+        for (int i = shuffle.length - 1; i > 0; i--) {
+            int j = random.nextInt(i + 1);
+            Song temp = shuffle[i];
+            shuffle[i] = shuffle[j];
+            shuffle[j] = temp;
+        }
+        return new Playlist(shuffle);
+    }
+
 
     public static Shipwrecker getInstance(){
         return instance;

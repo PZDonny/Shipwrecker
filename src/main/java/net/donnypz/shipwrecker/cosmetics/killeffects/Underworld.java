@@ -1,7 +1,7 @@
 package net.donnypz.shipwrecker.cosmetics.killeffects;
 
 import net.donnypz.mccore.cosmetics.CosmeticRegistry;
-import net.donnypz.mccore.cosmetics.KillEffect;
+import net.donnypz.mccore.cosmetics.preset.basic.KillEffect;
 import net.donnypz.mccore.utils.particles.DirectionalParticleHelix;
 import org.bukkit.*;
 import org.bukkit.entity.LivingEntity;

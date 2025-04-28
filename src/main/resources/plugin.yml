@@ -2,10 +2,15 @@ name: Shipwrecker
 version: '1.0.0-SNAPSHOT'
 main: net.donnypz.shipwrecker.Shipwrecker
 api-version: '1.21'
+depend:
+  - MCCore
+  - NoteBlockAPI
+  - DisplayEntityUtils
+  - DecentHolograms
 commands:
-  startgame:
+  startmatch:
     description:
-  addmarker:
+  endmatch:
     description:
   shop:
     description:
@@ -17,3 +22,8 @@ commands:
     description:
   addfakematch:
     description:
+  addfakeplayers:
+    description:
+  updatelb:
+    description:
+

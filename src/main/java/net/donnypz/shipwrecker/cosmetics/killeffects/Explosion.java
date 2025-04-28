@@ -1,7 +1,7 @@
 package net.donnypz.shipwrecker.cosmetics.killeffects;
 
 import net.donnypz.mccore.cosmetics.CosmeticRegistry;
-import net.donnypz.mccore.cosmetics.KillEffect;
+import net.donnypz.mccore.cosmetics.preset.basic.KillEffect;
 import net.donnypz.shipwrecker.Shipwrecker;
 import org.bukkit.*;
 import org.bukkit.entity.LivingEntity;
@@ -11,7 +11,7 @@ public class Explosion extends KillEffect {
 
     public Explosion(CosmeticRegistry registry) {
         super("explosion", registry);
-        this.setPrice(Shipwrecker.COINS, 500);
+        this.setCurrency(500, Shipwrecker.COINS, "coins");
         this.setCosmeticDisplayName("Explosion");
         this.setDisplayMaterial(Material.TNT);
     }

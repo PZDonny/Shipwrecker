@@ -3,6 +3,7 @@ package net.donnypz.shipwrecker.commands;
 import net.donnypz.shipwrecker.gamemanager.SWArena;
 import net.donnypz.shipwrecker.gamemanager.SWProfile;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -27,10 +28,10 @@ public class AddGold implements CommandExecutor {
         }
 
         try{
-            profile.addGold(Integer.parseInt(args[0]), true);
+            profile.addGold(Integer.parseInt(args[0]), true, true);
         }
         catch(NumberFormatException e){
-            p.sendMessage(Component.text("Enter a valid number!"));
+            p.sendMessage(Component.text("Enter a valid number!", NamedTextColor.RED));
         }
 
         return true;

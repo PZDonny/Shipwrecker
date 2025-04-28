@@ -58,6 +58,7 @@ public final class Shipwrecker extends JavaPlugin implements Listener {
         getCommand("shop").setExecutor(new ShopCommand());
         getCommand("shipspeed").setExecutor(new ShipSpeed());
         getCommand("updatelb").setExecutor(new UpdateLeaderboards());
+        getCommand("invincible").setExecutor(new Invincible());
 
         //Register Event Listeners
         getServer().getPluginManager().registerEvents(new ArenaListeners(), this);

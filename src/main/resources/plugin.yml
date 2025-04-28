@@ -26,4 +26,6 @@ commands:
     description:
   updatelb:
     description:
+  invincible:
+    description:
 

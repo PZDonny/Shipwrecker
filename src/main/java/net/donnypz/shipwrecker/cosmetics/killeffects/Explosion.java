@@ -22,6 +22,6 @@ public class Explosion extends KillEffect {
         l.add(0, victim.getBoundingBox().getHeight()/2, 0);
         World w = l.getWorld();
         w.spawnParticle(Particle.EXPLOSION, l, 2);
-        w.playSound(victim, Sound.ENTITY_GENERIC_EXPLODE, 0.75f, 1.25f);
+        w.playSound(victim.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 0.75f, 1.25f);
     }
 }

@@ -170,7 +170,7 @@ public class WorldPositioner {
 
         for (Player p : swArena.getArena().getArenaPlayers()){
             p.sendMessage(message);
-            p.playSound(environmentOrigin, Sound.ENTITY_AXOLOTL_SPLASH, 100, 1.25f);
+            p.playSound(environmentOrigin, Sound.ENTITY_AXOLOTL_SPLASH, 10, 1.25f);
         }
         if (scheduleNext){
             Bukkit.getScheduler().runTaskLater(Shipwrecker.getInstance(), () -> {

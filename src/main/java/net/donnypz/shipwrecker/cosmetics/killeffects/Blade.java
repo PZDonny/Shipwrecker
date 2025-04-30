@@ -1,7 +1,7 @@
 package net.donnypz.shipwrecker.cosmetics.killeffects;
 
 import net.donnypz.mccore.cosmetics.CosmeticRegistry;
-import net.donnypz.mccore.cosmetics.conditions.FieldMinimumCondition;
+import net.donnypz.mccore.database.cosmeticConditions.FieldMinimumCondition;
 import net.donnypz.mccore.cosmetics.preset.basic.KillEffect;
 import net.donnypz.shipwrecker.Shipwrecker;
 import org.bukkit.*;
@@ -21,11 +21,6 @@ public class Blade extends KillEffect {
     public Blade(CosmeticRegistry registry) {
         super("blade", registry);
         this.addCondition(new FieldMinimumCondition("matches_played", "matches played", 1));
-        /*this.addCondition(new DocumentCountCondition(Shipwrecker.getInstance().getMatchesCollection(),
-                1,
-                "players",
-                CountType.AT_LEAST,
-                "matches played"));*/
         this.setCosmeticDisplayName("Bladed");
         this.setDisplayMaterial(Material.IRON_SWORD);
     }

@@ -1,7 +1,7 @@
 package net.donnypz.shipwrecker.commands;
 
 import net.donnypz.shipwrecker.Shipwrecker;
-import net.donnypz.shipwrecker.leaderboard.LeaderboardUpdater;
+import net.donnypz.shipwrecker.database.LeaderboardUpdater;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;

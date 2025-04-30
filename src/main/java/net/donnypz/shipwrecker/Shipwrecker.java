@@ -7,7 +7,7 @@ import net.donnypz.mccore.utils.misc.NoteBlockUtils;
 import net.donnypz.shipwrecker.commands.*;
 import net.donnypz.shipwrecker.cosmetics.killeffects._KillEffectRegistry;
 import net.donnypz.shipwrecker.cosmetics.projectiletrails._ProjectileTrailRegistry;
-import net.donnypz.shipwrecker.leaderboard.LeaderboardUpdater;
+import net.donnypz.shipwrecker.database.LeaderboardUpdater;
 import net.donnypz.shipwrecker.listeners.*;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;

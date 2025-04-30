@@ -1,7 +1,7 @@
 package net.donnypz.shipwrecker.cosmetics.killeffects;
 
 import net.donnypz.mccore.cosmetics.CosmeticRegistry;
-import net.donnypz.mccore.cosmetics.conditions.CosmeticCountCondition;
+import net.donnypz.mccore.database.cosmeticConditions.CosmeticCountCondition;
 import net.donnypz.mccore.cosmetics.preset.basic.KillEffect;
 import net.donnypz.shipwrecker.Shipwrecker;
 import org.bukkit.*;

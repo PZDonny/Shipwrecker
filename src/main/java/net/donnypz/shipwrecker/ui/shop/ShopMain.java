@@ -1,10 +1,10 @@
 package net.donnypz.shipwrecker.ui.shop;
 
 import net.donnypz.mccore.database.PlayerData;
+import net.donnypz.mccore.utils.inventory.InventoryUtils;
 import net.donnypz.mccore.utils.item.ItemBuilder;
 import net.donnypz.mccore.utils.inventory.gui.ChestGUI;
 import net.donnypz.mccore.utils.inventory.gui.GUIItem;
-import net.donnypz.mccore.utils.inventory.gui.InventoryUtils;
 import net.donnypz.shipwrecker.Shipwrecker;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;

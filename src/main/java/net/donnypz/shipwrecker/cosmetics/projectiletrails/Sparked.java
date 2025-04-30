@@ -1,7 +1,7 @@
 package net.donnypz.shipwrecker.cosmetics.projectiletrails;
 
 import net.donnypz.mccore.cosmetics.CosmeticRegistry;
-import net.donnypz.mccore.cosmetics.conditions.FieldMinimumCondition;
+import net.donnypz.mccore.database.cosmeticConditions.FieldMinimumCondition;
 import net.donnypz.mccore.cosmetics.preset.basic.ProjectileTrail;
 import net.donnypz.shipwrecker.Shipwrecker;
 import org.bukkit.Material;

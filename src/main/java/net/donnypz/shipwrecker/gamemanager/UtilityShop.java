@@ -2,7 +2,7 @@ package net.donnypz.shipwrecker.gamemanager;
 
 import net.donnypz.mccore.utils.inventory.gui.ChestGUI;
 import net.donnypz.mccore.utils.inventory.gui.GUIItem;
-import net.donnypz.mccore.utils.inventory.gui.InventoryUtils;
+import net.donnypz.mccore.utils.inventory.InventoryUtils;
 import net.donnypz.mccore.utils.item.ItemAction;
 import net.donnypz.mccore.utils.item.ItemBuilder;
 import net.donnypz.mccore.utils.item.ItemUtils;

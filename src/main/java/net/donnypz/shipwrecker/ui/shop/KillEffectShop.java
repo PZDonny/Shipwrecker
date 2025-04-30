@@ -2,9 +2,9 @@ package net.donnypz.shipwrecker.ui.shop;
 
 import com.mongodb.client.MongoCollection;
 import net.donnypz.mccore.cosmetics.Cosmetic;
-import net.donnypz.mccore.utils.inventory.cosmetic.CosmeticGUI;
-import net.donnypz.mccore.utils.inventory.cosmetic.CosmeticGUIItem;
-import net.donnypz.mccore.utils.inventory.gui.InventoryUtils;
+import net.donnypz.mccore.utils.inventory.InventoryUtils;
+import net.donnypz.mccore.utils.inventory.gui.cosmetic.CosmeticGUI;
+import net.donnypz.mccore.utils.inventory.gui.cosmetic.CosmeticGUIItem;
 import net.donnypz.shipwrecker.Shipwrecker;
 import net.kyori.adventure.text.Component;
 import org.bson.Document;
@@ -15,8 +15,9 @@ import org.bukkit.entity.Player;
 class KillEffectShop {
 
     static void open(Player player, Document playerDocument){
-        MongoCollection<Document> playerCollection = Shipwrecker.getInstance().getPlayersCollection();
-        MongoCollection<Document> unlockCollection = Shipwrecker.getInstance().getKillEffectCollection();
+        Shipwrecker sw = Shipwrecker.getInstance();
+        MongoCollection<Document> playerCollection = sw.getPlayersCollection();
+        MongoCollection<Document> unlockCollection = sw.getKillEffectCollection();
 
         CosmeticGUI gui = new CosmeticGUI(5,
                 Component.text("Kill Effects"),
@@ -33,7 +34,7 @@ class KillEffectShop {
         });
 
         int slot = 9;
-        for (Cosmetic cosmetic : Shipwrecker.getInstance().getKillEffectRegistry().getCosmetics()){
+        for (Cosmetic cosmetic : sw.getKillEffectRegistry().getCosmetics()){
             new CosmeticGUIItem(gui, slot, cosmetic.getDisplayMaterial(), cosmetic);
             slot++;
         }

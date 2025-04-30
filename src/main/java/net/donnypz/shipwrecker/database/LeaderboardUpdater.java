@@ -1,9 +1,8 @@
-package net.donnypz.shipwrecker.leaderboard;
+package net.donnypz.shipwrecker.database;
 
 import eu.decentsoftware.holograms.api.DHAPI;
 import eu.decentsoftware.holograms.api.holograms.Hologram;
 import net.donnypz.shipwrecker.Shipwrecker;
-import net.donnypz.shipwrecker.database.LeaderboardQuery;
 import org.bson.Document;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;

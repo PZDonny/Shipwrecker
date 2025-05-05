@@ -32,9 +32,7 @@ public final class DataManager {
             .append("equipped_cosmetics",
                     //Nested Document
                     new Document("kill_effect", null)
-                            .append("projectile_trail", null)
-                            .append("armor_trim_pattern", null)
-                            .append("armor_trim_material", null));
+                            .append("projectile_trail", null));
 
 
     private DataManager() {}

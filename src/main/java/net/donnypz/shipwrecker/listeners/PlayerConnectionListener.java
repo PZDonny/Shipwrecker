@@ -16,6 +16,7 @@ public class PlayerConnectionListener implements Listener {
     public void onJoin(PlayerJoinEvent e){
         Player player = e.getPlayer();
         Bukkit.getScheduler().runTaskAsynchronously(Shipwrecker.getInstance(), () -> DataManager.generatePlayerDocument(player));
+        player.setRotation(-90, 0);
     }
 
     @EventHandler

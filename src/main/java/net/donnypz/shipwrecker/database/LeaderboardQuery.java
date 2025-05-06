@@ -26,8 +26,8 @@ public final class LeaderboardQuery {
 
         AggregateIterable<Document> iter = collection.aggregate(List.of(
                                 Aggregates.addFields(new Field<>(KILLS_FIELD, new Document("$add", List.of("$kills_melee", "$kills_projectile")))),
-                                Aggregates.limit(LIMIT),
                                 Aggregates.sort(Sorts.descending(KILLS_FIELD)),
+                                Aggregates.limit(LIMIT),
                                 Aggregates.project(Projections.include("uuid", KILLS_FIELD))));
         List<Document> docs = new ArrayList<>();
 
@@ -43,8 +43,8 @@ public final class LeaderboardQuery {
         FindIterable<Document> iter = collection
                 .find()
                 .projection(Projections.include("uuid", WINS_FIELD))
-                .limit(LIMIT)
-                .sort(Sorts.descending(WINS_FIELD));
+                .sort(Sorts.descending(WINS_FIELD))
+                .limit(LIMIT);
 
         List<Document> docs = new ArrayList<>();
 
